@@ -1,0 +1,100 @@
+//===== rAthena Script =======================================
+//= Broken test de rAthenaExtension
+//===== By: ==================================================
+//= Zindokar
+//===== Description: =========================================
+//= Gemelo malvado de smoke-test.txt: la misma estructura,
+//= pero con un fallo plantado en cada bloque.
+//= Cada marca ERROR debe producir al menos un subrayado.
+//============================================================
+
+// --- 1. NPC completo, con puntos y coma ausentes ---
+prontera,150,180,4	script	Roto Uno	100,{
+
+	mes "[^0055FFZindokar^000000]"     // ERROR 1: falta ;
+	mes "Esta linea si esta bien.";
+	next;
+
+	.@precio = 5000                    // ERROR 2: falta ; en asignacion
+	.npc_contador++;
+	@temporal = 1;
+
+	// Estas construcciones son correctas y NO deben avisar:
+	if (Zeny < .@precio)
+		close;
+
+	for (.@i = 0; .@i < 3; .@i++) {
+		dispbottom "Vuelta " + .@i;
+	}
+
+	.@texto$ = "cadena partida " +
+		"en dos lineas";
+
+	mes sprintf("%d y %d",
+		1,
+		2);
+
+	switch (select("Uno:Dos")) {
+		case 1:
+			percentheal 100,100;
+			break;
+		case 2:
+			sc_start SC_INCREASEAGI,240000,10
+			break;                     // ERROR 3: falta ; en sc_start
+	}
+
+	callfunc("F_TestGlobal")           // ERROR 4: falta ; en la llamada
+	end;
+
+OnInit:
+	.npc_contador = 0
+	end;                               // ERROR 5: falta ; en OnInit
+}
+
+// --- 2. Comando mal escrito ---
+prontera,151,180,4	script	Roto Dos	100,{
+	mees "me he comido una ese";       // ERROR 6: comando inexistente
+	dispbotom "y aqui otra letra";     // ERROR 7: comando inexistente
+	end;
+}
+
+// --- 3. do-while sin punto y coma ---
+prontera,152,180,4	script	Roto Tres	100,{
+	.@i = 0;
+	do {
+		.@i++;
+	} while (.@i < 3)                  // ERROR 8: el do-while si necesita ;
+	end;
+}
+
+// --- 4. Cadena sin cerrar ---
+prontera,153,180,4	script	Roto Cuatro	100,{
+	mes "me falta la comilla de cierre;
+	end;                               // ERROR 9: cadena sin terminar
+}
+
+// --- 5. Parentesis de mas ---
+// El mismo patron que el bug real de quests_moscovia.txt:9923
+prontera,154,180,4	script	Roto Cinco	100,{
+	.@total = ( 1 <= ( 2 / 3 ) ) ? 4 : ( 5 / 6 ));
+	end;                               // ERROR 10: parentesis desemparejado
+}
+
+// --- 6. Corchete cerrado con parentesis ---
+prontera,155,180,4	script	Roto Seis	100,{
+	setarray .@array[0],1,2,3;
+	.@valor = .@array[0);              // ERROR 11: [ cerrado con )
+	end;
+}
+
+// --- 7. Cabecera con espacios en vez de tabuladores ---
+prontera,156,180,4 script RotoSiete 100,{
+	end;                               // ERROR 12: la cabecera usa espacios
+}
+
+// --- 8. Llave sin cerrar ---
+// Va el ultimo a proposito: arrastra hasta el final del fichero.
+// Sirve para comprobar que el analisis no se rompe ni se cuelga.
+prontera,157,180,4	script	Roto Ocho	100,{
+	mes "nunca cierro este bloque";
+	end;                               // ERROR 13: falta la } final

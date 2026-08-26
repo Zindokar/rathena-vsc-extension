@@ -1,0 +1,41 @@
+{
+  "folders": [
+    {
+      "name": "rathena-extension",
+      "path": "."
+    },
+    {
+      "name": "rathena (server)",
+      "path": "../rathena"
+    }
+  ],
+  "settings": {
+    "rathena.serverPath": "${workspaceFolder:rathena (server)}",
+    "rathena.mode": "renewal",
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/out": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "rathena (server)/src/**": false
+    },
+    "editor.insertSpaces": false,
+    "editor.detectIndentation": false,
+    "[typescript]": {
+      "editor.insertSpaces": true,
+      "editor.tabSize": 2,
+      "editor.formatOnSave": true
+    },
+    "[rathena-script]": {
+      "editor.insertSpaces": false,
+      "editor.tabSize": 4
+    },
+    "typescript.tsdk": "rathena-extension/node_modules/typescript/lib"
+  },
+  "extensions": {
+    "recommendations": ["dbaeumer.vscode-eslint", "connor4312.esbuild-problem-matchers"]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "rAthena Config",
+  "scopeName": "source.rathena-conf",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#import" },
+    { "include": "#setting" },
+    { "include": "#string" },
+    { "include": "#number" }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        { "name": "comment.line.double-slash.rathena-conf", "match": "//.*$" },
+        { "name": "comment.line.number-sign.rathena-conf", "match": "^\\s*#.*$" }
+      ]
+    },
+    "import": {
+      "name": "meta.preprocessor.import.rathena-conf",
+      "match": "^\\s*(import)\\s*(:)\\s*(.*)$",
+      "captures": {
+        "1": { "name": "keyword.control.import.rathena-conf" },
+        "2": { "name": "punctuation.separator.rathena-conf" },
+        "3": { "name": "string.unquoted.path.rathena-conf" }
+      }
+    },
+    "setting": {
+      "match": "^\\s*([A-Za-z_][A-Za-z0-9_.\\-]*)\\s*(:)\\s*(.*?)\\s*(?=//|$)",
+      "captures": {
+        "1": { "name": "variable.other.key.rathena-conf" },
+        "2": { "name": "punctuation.separator.key-value.rathena-conf" },
+        "3": {
+          "patterns": [
+            { "name": "constant.language.boolean.rathena-conf", "match": "\\b(yes|no|true|false|on|off)\\b" },
+            { "name": "constant.numeric.rathena-conf", "match": "\\b0[xX][0-9a-fA-F]+\\b|\\b-?\\d+\\b" },
+            { "name": "string.unquoted.rathena-conf", "match": ".+" }
+          ]
+        }
+      }
+    },
+    "string": {
+      "name": "string.quoted.double.rathena-conf",
+      "begin": "\"",
+      "end": "\""
+    },
+    "number": {
+      "name": "constant.numeric.rathena-conf",
+      "match": "\\b-?\\d+\\b"
+    }
+  }
+}

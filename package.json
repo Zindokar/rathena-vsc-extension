@@ -1,0 +1,278 @@
+{
+  "name": "rathena-extension",
+  "displayName": "rAthenaExtension",
+  "description": "Language support for rAthena: NPC scripts, YAML databases and server configuration files.",
+  "version": "0.3.1",
+  "publisher": "Zindokar",
+  "license": "MIT",
+  "author": {
+    "name": "Zindokar"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zindokar/rathena-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Zindokar/rathena-extension/issues"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters"
+  ],
+  "keywords": [
+    "rathena",
+    "ragnarok",
+    "ragnarok online",
+    "npc script",
+    "private server"
+  ],
+  "main": "./dist/client.js",
+  "activationEvents": [
+    "workspaceContains:**/npc/**/*.txt",
+    "workspaceContains:conf/map_athena.conf"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "rathena-script",
+        "aliases": [
+          "rAthena Script",
+          "rathena"
+        ],
+        "extensions": [
+          ".rascript"
+        ],
+        "filenamePatterns": [
+          "**/npc/**/*.txt"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "rathena-conf",
+        "aliases": [
+          "rAthena Config"
+        ],
+        "extensions": [
+          ".conf"
+        ],
+        "configuration": "./language-configuration-conf.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rathena-script",
+        "scopeName": "source.rathena",
+        "path": "./syntaxes/rathena-script.tmLanguage.json"
+      },
+      {
+        "language": "rathena-conf",
+        "scopeName": "source.rathena-conf",
+        "path": "./syntaxes/rathena-conf.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "rathena-script",
+        "path": "./snippets/rathena-script.json"
+      }
+    ],
+    "configuration": {
+      "title": "rAthena",
+      "properties": {
+        "rathena.serverPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute path to your rAthena server folder (the one containing `conf/`, `db/`, `npc/` and `src/`). Leave empty to auto-detect from the open workspace folders."
+        },
+        "rathena.mode": {
+          "type": "string",
+          "enum": [
+            "renewal",
+            "pre-renewal"
+          ],
+          "default": "renewal",
+          "description": "Which database folder to index: db/re (renewal) or db/pre-re (pre-renewal)."
+        },
+        "rathena.diagnostics.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable syntax and semantic diagnostics for NPC scripts."
+        },
+        "rathena.diagnostics.unknownIds": {
+          "type": "boolean",
+          "default": true,
+          "description": "Report item, mob and skill IDs that are not present in the indexed database."
+        },
+        "rathena.strictParser": {
+          "type": "string",
+          "enum": [
+            "onSave",
+            "onType",
+            "off"
+          ],
+          "enumDescriptions": [
+            "Run when the file is saved (recommended). Half-typed code produces misleading errors.",
+            "Run on every keystroke. Accurate but noisy while editing.",
+            "Never run automatically; use the 'Check With Map-Server Parser' command."
+          ],
+          "default": "onSave",
+          "markdownDescription": "Validate scripts with a faithful port of the map-server's own parser (`parse_script` in `src/map/script.cpp`), reporting the exact error rAthena would print. Catches argument-count mismatches, duplicate `case` labels and undeclared functions that the fast checks cannot."
+        },
+        "rathena.mapServer.binary": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to the compiled `map-server` binary, absolute or relative to the server folder. Leave empty to look for `map-server` (or `map-server.exe` on Windows) in the server root."
+        },
+        "rathena.mapServer.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "--run-once"
+          ],
+          "markdownDescription": "Arguments passed to the map-server. `--run-once` loads everything and exits, which is what makes it usable as a script check."
+        },
+        "rathena.format.indentStyle": {
+          "type": "string",
+          "enum": [
+            "tab",
+            "space"
+          ],
+          "default": "tab",
+          "description": "Indentation character used by the formatter. rAthena's own scripts use tabs."
+        },
+        "rathena.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Trace the communication between VS Code and the rAthena language server."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "rathena.restartServer",
+        "title": "rAthena: Restart Language Server"
+      },
+      {
+        "command": "rathena.reindexDatabase",
+        "title": "rAthena: Re-index Server Database"
+      },
+      {
+        "command": "rathena.showServerPath",
+        "title": "rAthena: Show Detected Server Path"
+      },
+      {
+        "command": "rathena.strictCheck",
+        "title": "rAthena: Check With Map-Server Parser"
+      },
+      {
+        "command": "rathena.runMapServerCheck",
+        "title": "rAthena: Run Real Map-Server Script Check"
+      },
+      {
+        "command": "rathena.insert.item",
+        "title": "rAthena: Insert Item…"
+      },
+      {
+        "command": "rathena.insert.mob",
+        "title": "rAthena: Insert Monster…"
+      },
+      {
+        "command": "rathena.insert.skill",
+        "title": "rAthena: Insert Skill…"
+      },
+      {
+        "command": "rathena.insert.sprite",
+        "title": "rAthena: Insert NPC Sprite…"
+      },
+      {
+        "command": "rathena.insert.map",
+        "title": "rAthena: Insert Map Name…"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "rathena.strictCheck",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c",
+        "when": "editorLangId == rathena-script"
+      },
+      {
+        "command": "rathena.runMapServerCheck",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m",
+        "when": "editorLangId == rathena-script"
+      },
+      {
+        "command": "rathena.insert.item",
+        "key": "ctrl+alt+i",
+        "mac": "cmd+alt+i",
+        "when": "editorTextFocus && editorLangId == rathena-script"
+      },
+      {
+        "command": "rathena.insert.mob",
+        "key": "ctrl+alt+b",
+        "mac": "cmd+alt+b",
+        "when": "editorTextFocus && editorLangId == rathena-script"
+      },
+      {
+        "command": "rathena.insert.skill",
+        "key": "ctrl+alt+k",
+        "mac": "cmd+alt+k",
+        "when": "editorTextFocus && editorLangId == rathena-script"
+      },
+      {
+        "command": "rathena.insert.sprite",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g",
+        "when": "editorTextFocus && editorLangId == rathena-script"
+      },
+      {
+        "command": "rathena.insert.map",
+        "key": "ctrl+alt+l",
+        "mac": "cmd+alt+l",
+        "when": "editorTextFocus && editorLangId == rathena-script"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run check && npm run build",
+    "build": "node esbuild.mjs --production",
+    "watch": "node esbuild.mjs --watch",
+    "check": "tsc --noEmit",
+    "lint": "eslint client server scripts --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "gen:data": "tsx scripts/generate-bundled-data.ts",
+    "verify": "tsx scripts/verify-corpus.ts",
+    "package:full": "npm run gen:data && vsce package",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "@vscode/vsce": "^2.27.0",
+    "esbuild": "^0.21.5",
+    "eslint": "^8.57.0",
+    "tsx": "^4.15.6",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

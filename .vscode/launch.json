@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension (build once)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder:rathena-extension}",
+        "${workspaceFolder:rathena (server)}"
+      ],
+      "outFiles": ["${workspaceFolder:rathena-extension}/dist/**/*.js"],
+      "preLaunchTask": "npm: build"
+    },
+    {
+      "name": "Run Extension (watch)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder:rathena-extension}",
+        "${workspaceFolder:rathena (server)}"
+      ],
+      "outFiles": ["${workspaceFolder:rathena-extension}/dist/**/*.js"],
+      "preLaunchTask": "npm: watch"
+    },
+    {
+      "name": "Attach to Language Server",
+      "type": "node",
+      "request": "attach",
+      "port": 6009,
+      "restart": true,
+      "outFiles": ["${workspaceFolder:rathena-extension}/dist/server.js"],
+      "sourceMaps": true
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Extension + Server",
+      "configurations": ["Run Extension (watch)", "Attach to Language Server"],
+      "stopAll": true
+    }
+  ]
+}

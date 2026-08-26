@@ -1,0 +1,115 @@
+//===== rAthena Script =======================================
+//= Smoke test de rAthenaExtension
+//===== By: ==================================================
+//= Zindokar
+//===== Description: =========================================
+//= Fichero de prueba. NO debe producir ningun diagnostico.
+//= Si ves algun subrayado aqui, es un falso positivo.
+//============================================================
+
+// --- 1. NPC completo: dialogo, scopes, constantes, IDs ---
+prontera,150,180,4	script	Zindokar Test	100,{
+
+	mes "[^0055FFZindokar^000000]";
+	mes "Hola, " + strcharinfo(0) + ". Bienvenido.";
+	next;
+
+	// Los nueve scopes de variable, cada uno de un color
+	.@precio = 5000;              // scope local del script
+	.npc_contador++;              // del NPC
+	@temporal = 1;                // temporal del personaje
+	permanente_pj = 2;            // permanente del personaje
+	#puntos_cuenta = 10;          // cuenta, este map-server
+	##puntos_globales = 20;       // cuenta, login-server
+	$global_permanente = 30;      // global permanente
+	$@global_temporal = 40;       // global temporal
+	'variable_instancia = 50;     // de instancia
+	.@nombre$ = "soy una cadena"; // sufijo $ = tipo cadena
+
+	// Parametros integrados del personaje
+	if (Zeny < .@precio || BaseLevel < 50) {
+		mes "No cumples los requisitos.";
+		close;
+	}
+	Zeny -= .@precio;
+
+	switch (select("Curarme:Darme un item:Salir")) {
+		case 1:
+			percentheal 100,100;
+			sc_start SC_INCREASEAGI,240000,10;
+			specialeffect2 EF_HEAL2;
+			break;
+		case 2:
+			getitem 501,10;
+			getitem "Apple",1;
+			break;
+		case 3:
+			close;
+	}
+
+	for (.@i = 0; .@i < 3; .@i++) {
+		dispbottom "Vuelta " + .@i;
+	}
+
+	// Numeros hexadecimales y operadores largos
+	.@mascara = 0xFF00;
+	.@mascara <<= 2;
+
+	// Constante en minusculas: la busqueda es case-insensitive
+	if (Class == Job_Novice) {
+		mes "Eres un novato.";
+	}
+
+	end;
+
+OnInit:
+	.npc_contador = 0;
+	end;
+
+OnPCLoginEvent:
+	dispbottom "Bienvenido al servidor.";
+	end;
+
+OnTouch:
+	end;
+
+L_EtiquetaPropia:
+	end;
+}
+
+// --- 2. NPC flotante ---
+-	script	Flotante Test	-1,{
+	end;
+
+OnClock1200:
+	announce "Son las doce.",bc_all;
+	end;
+}
+
+// --- 3. Objeto funcion global ---
+function	script	F_TestGlobal	{
+	return getarg(0) + 1;
+}
+
+// --- 4. Funcion local declarada y definida en el mismo fichero ---
+-	script	Funcion Local Test	-1,{
+	function SF_Ayuda;
+
+	SF_Ayuda();
+	end;
+
+	function SF_Ayuda {
+		mes "Soy una funcion local.";
+		return;
+	}
+}
+
+// --- 5. Resto de definiciones de nivel superior ---
+prontera,155,185,4	duplicate(Zindokar Test)	Zindokar Test#dup	100
+prontera,160,180,0	warp	warp_test	2,2,geffen,120,100
+prontera,165,180,4	shop	Tienda Test	100,501:-1,502:200
+-	shop	Tienda Oculta	HIDDEN_NPC,501:-1
+prt_fild00,0,0	monster	Poring	1002,10,5000
+prt_maze03,0,0	boss_monster	Baphomet	1039,1,7200000,600000,0
+prontera	mapflag	nomemo
+prontera	mapflag	nobranch

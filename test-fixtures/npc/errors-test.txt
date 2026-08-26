@@ -1,0 +1,44 @@
+//===== rAthena Script =======================================
+//= Test de diagnosticos de rAthenaExtension
+//= CADA bloque marcado con ERROR debe producir un subrayado.
+//= Si alguno no lo produce, es un falso negativo.
+//============================================================
+
+// --- ERROR 1: espacios en vez de tabuladores en la cabecera ---
+// Es el fallo mas comun y el map-server ni carga la linea.
+prontera,150,180,4 script CabeceraConEspacios 100,{
+	end;
+}
+
+// --- ERROR 2: comando inexistente ---
+prontera,151,180,4	script	ComandoMal	100,{
+	mees "me he comido una ese";
+	end;
+}
+
+// --- ERROR 3: cadena sin cerrar ---
+prontera,152,180,4	script	CadenaMal	100,{
+	mes "me falta la comilla de cierre;
+	end;
+}
+
+// --- ERROR 4: parentesis de mas ---
+// Este es exactamente el bug que encontramos en quests_moscovia.txt:9923
+prontera,153,180,4	script	ParentesisMal	100,{
+	.@total = ( 1 <= ( 2 / 3 ) ) ? 4 : ( 5 / 6 ));
+	end;
+}
+
+// --- ERROR 5: corchete mal emparejado ---
+prontera,154,180,4	script	CorcheteMal	100,{
+	.@array[0] = 1;
+	.@valor = .@array[0);
+	end;
+}
+
+// --- ERROR 6: llave sin cerrar ---
+// Va el ultimo a proposito: al no cerrarse, arrastra hasta el final
+// del fichero. Asi compruebas que el analisis no se rompe ni se cuelga.
+prontera,155,180,4	script	LlaveMal	100,{
+	mes "nunca cierro el bloque";
+	end;

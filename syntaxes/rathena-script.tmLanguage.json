@@ -1,0 +1,257 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "rAthena Script",
+  "scopeName": "source.rathena",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#npc-header" },
+    { "include": "#mapflag" },
+    { "include": "#label" },
+    { "include": "#string" },
+    { "include": "#number" },
+    { "include": "#keyword" },
+    { "include": "#variable" },
+    { "include": "#constant" },
+    { "include": "#function-call" },
+    { "include": "#operator" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.block.banner.rathena",
+          "match": "^//=+.*$"
+        },
+        {
+          "name": "comment.line.double-slash.rathena",
+          "begin": "//",
+          "end": "$",
+          "beginCaptures": { "0": { "name": "punctuation.definition.comment.rathena" } }
+        },
+        {
+          "name": "comment.block.rathena",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "beginCaptures": { "0": { "name": "punctuation.definition.comment.begin.rathena" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.comment.end.rathena" } }
+        }
+      ]
+    },
+
+    "npc-header": {
+      "comment": "Tab-separated NPC/shop/warp/monster/duplicate definition at the start of a line.",
+      "name": "meta.npc.header.rathena",
+      "match": "^(?:(-)|(function)|([A-Za-z_][A-Za-z0-9_@#.-]*))((?:,-?\\d+)*)(\\t+)(script|shop|cashshop|itemshop|pointshop|marketshop|barbershop|warp|warp2|monster|boss_monster|duplicate\\s*\\([^)\\n]*\\))(\\t+)([^\\t\\n]*)(?:(\\t+)([^\\n]*))?",
+      "captures": {
+        "1": { "name": "constant.language.npc.floating.rathena" },
+        "2": { "name": "storage.type.function.rathena" },
+        "3": { "name": "entity.name.type.map.rathena" },
+        "4": {
+          "name": "meta.npc.coordinates.rathena",
+          "patterns": [
+            { "match": "-?\\d+", "name": "constant.numeric.rathena" },
+            { "match": ",", "name": "punctuation.separator.rathena" }
+          ]
+        },
+        "5": { "name": "punctuation.separator.tab.rathena" },
+        "6": {
+          "name": "storage.type.npc.rathena",
+          "patterns": [
+            { "match": "\\b(duplicate)\\b", "name": "storage.type.npc.rathena" },
+            { "match": "[A-Za-z_][A-Za-z0-9_#-]*", "name": "entity.name.function.npc.rathena" }
+          ]
+        },
+        "7": { "name": "punctuation.separator.tab.rathena" },
+        "8": { "name": "entity.name.function.npc.rathena" },
+        "9": { "name": "punctuation.separator.tab.rathena" },
+        "10": {
+          "name": "meta.npc.sprite.rathena",
+          "patterns": [
+            { "include": "#comment" },
+            { "match": "\\b[A-Z][A-Z0-9_]{2,}\\b", "name": "support.constant.rathena" },
+            { "match": "-?\\d+", "name": "constant.numeric.rathena" },
+            { "match": "[{,:]", "name": "punctuation.separator.rathena" }
+          ]
+        }
+      }
+    },
+
+    "mapflag": {
+      "name": "meta.mapflag.rathena",
+      "match": "^([A-Za-z_][A-Za-z0-9_@#.-]*)((?:,-?\\d+)*)(\\t+)(mapflag)(\\t+)([A-Za-z_][A-Za-z0-9_]*)(?:(\\t+)([^\\n]*))?",
+      "captures": {
+        "1": { "name": "entity.name.type.map.rathena" },
+        "2": { "patterns": [{ "match": "-?\\d+", "name": "constant.numeric.rathena" }] },
+        "4": { "name": "storage.type.mapflag.rathena" },
+        "6": { "name": "support.type.mapflag.rathena" },
+        "8": { "patterns": [{ "include": "$self" }] }
+      }
+    },
+
+    "label": {
+      "patterns": [
+        {
+          "comment": "Event labels invoked by the server: OnInit, OnTouch, OnClock1200, OnPCLoginEvent...",
+          "name": "entity.name.function.label.event.rathena",
+          "match": "^\\s*(On[A-Za-z0-9_]*)\\s*(:)",
+          "captures": {
+            "1": { "name": "support.function.event-label.rathena" },
+            "2": { "name": "punctuation.separator.label.rathena" }
+          }
+        },
+        {
+          "comment": "User-defined labels used by goto/callsub, e.g. L_Menu:",
+          "match": "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*(:)(?!:)",
+          "captures": {
+            "1": { "name": "entity.name.label.rathena" },
+            "2": { "name": "punctuation.separator.label.rathena" }
+          }
+        }
+      ]
+    },
+
+    "string": {
+      "name": "string.quoted.double.rathena",
+      "begin": "\"",
+      "end": "\"",
+      "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.rathena" } },
+      "endCaptures": { "0": { "name": "punctuation.definition.string.end.rathena" } },
+      "patterns": [
+        {
+          "comment": "Client-side colour code, e.g. ^FF0000 red / ^000000 reset",
+          "name": "constant.character.colour.rathena",
+          "match": "\\^[0-9a-fA-F]{6}"
+        },
+        {
+          "comment": "Navigation / item link tags understood by the client",
+          "name": "constant.character.escape.rathena",
+          "match": "<(NAVI|ITEM|ITEMLINK|URL|INFO)>.*?</(NAVI|ITEM|ITEMLINK|URL|INFO)>"
+        },
+        {
+          "name": "constant.character.escape.rathena",
+          "match": "\\\\."
+        }
+      ]
+    },
+
+    "number": {
+      "patterns": [
+        { "name": "constant.numeric.hex.rathena", "match": "\\b0[xX][0-9a-fA-F]+\\b" },
+        { "name": "constant.numeric.decimal.rathena", "match": "\\b\\d+\\b" }
+      ]
+    },
+
+    "keyword": {
+      "patterns": [
+        {
+          "name": "keyword.control.conditional.rathena",
+          "match": "\\b(if|else|switch|case|default)\\b"
+        },
+        {
+          "name": "keyword.control.loop.rathena",
+          "match": "\\b(for|while|do|break|continue)\\b"
+        },
+        {
+          "name": "keyword.control.flow.rathena",
+          "match": "\\b(return|end|close|close2|close3|next|clear|goto|callsub|callfunc|donpcevent|doevent)\\b"
+        },
+        {
+          "name": "storage.type.function.rathena",
+          "match": "\\b(function)\\b"
+        },
+        {
+          "comment": "Dialogue commands, the bread and butter of NPC scripts",
+          "name": "support.function.dialogue.rathena",
+          "match": "\\b(mes|menu|select|prompt|input|npctalk|message|dispbottom|announce|mesf)\\b"
+        }
+      ]
+    },
+
+    "variable": {
+      "patterns": [
+        {
+          "comment": "$@ global temporary, $ global permanent",
+          "name": "variable.other.global.rathena",
+          "match": "(\\$@?)([A-Za-z_][A-Za-z0-9_]*)(\\$?)",
+          "captures": { "1": { "name": "punctuation.definition.variable.rathena" } }
+        },
+        {
+          "comment": ".@ scope-local (script), . NPC-local",
+          "name": "variable.other.local.rathena",
+          "match": "(\\.@?)([A-Za-z_][A-Za-z0-9_]*)(\\$?)",
+          "captures": { "1": { "name": "punctuation.definition.variable.rathena" } }
+        },
+        {
+          "comment": "## account-global, # account-local",
+          "name": "variable.other.account.rathena",
+          "match": "(##?)([A-Za-z_][A-Za-z0-9_]*)(\\$?)",
+          "captures": { "1": { "name": "punctuation.definition.variable.rathena" } }
+        },
+        {
+          "comment": "@ character temporary",
+          "name": "variable.other.character-temp.rathena",
+          "match": "(@)([A-Za-z_][A-Za-z0-9_]*)(\\$?)",
+          "captures": { "1": { "name": "punctuation.definition.variable.rathena" } }
+        },
+        {
+          "comment": "' instance variable",
+          "name": "variable.other.instance.rathena",
+          "match": "(')([A-Za-z_][A-Za-z0-9_]*)(\\$?)",
+          "captures": { "1": { "name": "punctuation.definition.variable.rathena" } }
+        },
+        {
+          "comment": "Built-in character parameters",
+          "name": "variable.language.parameter.rathena",
+          "match": "\\b(Zeny|Hp|MaxHp|Sp|MaxSp|BaseLevel|JobLevel|BaseExp|JobExp|BaseClass|Class|Upper|Sex|Weight|MaxWeight|StatusPoint|SkillPoint|Karma|Manner|BankVault)\\b"
+        }
+      ]
+    },
+
+    "constant": {
+      "patterns": [
+        {
+          "comment": "Server constants: SC_*, EF_*, Job_*, bStr, mf_*, MD_*...",
+          "name": "support.constant.rathena",
+          "match": "\\b(SC_|EF_|Job_|JOB_|EAJ_|EAJL_|MD_|RC_|RC2_|ELE_|Ele_|SP_|LOOK_|ITEMINFO_|UNITINFO_|MF_|mf_|bonus|VAR_|CLR_|PC_|BL_|MAPINFO_|CHECKING_|IG_|SKILL_|ATF_|BF_|MOB_|E_|CLONE_)[A-Za-z0-9_]+\\b"
+        },
+        {
+          "comment": "Bonus identifiers such as bStr, bAtkRate, bMaxHP",
+          "name": "support.constant.bonus.rathena",
+          "match": "\\bb[A-Z][A-Za-z0-9]*\\b"
+        },
+        {
+          "name": "constant.language.boolean.rathena",
+          "match": "\\b(true|false|null)\\b"
+        }
+      ]
+    },
+
+    "function-call": {
+      "comment": "Anything called like a function; the language server refines this semantically.",
+      "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
+      "captures": { "1": { "name": "entity.name.function.rathena" } }
+    },
+
+    "operator": {
+      "patterns": [
+        { "name": "keyword.operator.assignment.rathena", "match": "(\\+=|-=|\\*=|/=|%=|\\|=|&=|\\^=|<<=|>>=|=)" },
+        { "name": "keyword.operator.comparison.rathena", "match": "(==|!=|<=|>=|<|>)" },
+        { "name": "keyword.operator.logical.rathena", "match": "(&&|\\|\\||!)" },
+        { "name": "keyword.operator.bitwise.rathena", "match": "(<<|>>|&|\\||\\^|~)" },
+        { "name": "keyword.operator.arithmetic.rathena", "match": "(\\+\\+|--|\\+|-|\\*|/|%)" },
+        { "name": "keyword.operator.ternary.rathena", "match": "(\\?|:)" }
+      ]
+    },
+
+    "punctuation": {
+      "patterns": [
+        { "name": "punctuation.terminator.statement.rathena", "match": ";" },
+        { "name": "punctuation.separator.comma.rathena", "match": "," },
+        { "name": "punctuation.section.block.rathena", "match": "[{}]" },
+        { "name": "punctuation.section.parens.rathena", "match": "[()]" },
+        { "name": "punctuation.section.brackets.rathena", "match": "[\\[\\]]" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "NPC header (script)": {
+    "prefix": "npc",
+    "body": [
+      "${1:prontera},${2:150},${3:180},${4:4}\tscript\t${5:NPC Name}\t${6:100},{",
+      "\t$0",
+      "\tend;",
+      "}"
+    ],
+    "description": "A standard clickable NPC. Facing: 0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW."
+  },
+  "NPC header with touch area": {
+    "prefix": "npctouch",
+    "body": [
+      "${1:prontera},${2:150},${3:180},${4:4}\tscript\t${5:NPC Name}\t${6:100},${7:3},${8:3},{",
+      "\tOnTouch:",
+      "\t\t$0",
+      "\t\tend;",
+      "}"
+    ],
+    "description": "NPC with an OnTouch trigger area (width, height in cells)."
+  },
+  "Floating NPC": {
+    "prefix": "npcfloat",
+    "body": ["-\tscript\t${1:NPC Name}\t${2:-1},{", "\t$0", "\tend;", "}"],
+    "description": "An invisible NPC not bound to a map. Used for event and timer logic."
+  },
+  "Function object": {
+    "prefix": "func",
+    "body": [
+      "function\tscript\t${1:F_MyFunction}\t{",
+      "\t$0",
+      "\treturn;",
+      "}"
+    ],
+    "description": "A global function object, callable with callfunc(\"name\")."
+  },
+  "Duplicate": {
+    "prefix": "dup",
+    "body": ["${1:prontera},${2:150},${3:180},${4:4}\tduplicate(${5:Original})\t${6:Name}#${7:suffix}\t${8:100}"],
+    "description": "Duplicate an existing NPC at another location."
+  },
+  "Warp": {
+    "prefix": "warp",
+    "body": ["${1:prontera},${2:150},${3:180}\twarp\t${4:warp_name}\t${5:2},${6:2},${7:geffen},${8:120},${9:100}"],
+    "description": "A warp portal. Params: spanX, spanY, destination map, destination x, destination y."
+  },
+  "Shop": {
+    "prefix": "shop",
+    "body": ["${1:prontera},${2:150},${3:180},${4:4}\tshop\t${5:Shop Name}\t${6:100},${7:501}:${8:-1}"],
+    "description": "A shop NPC. Item price -1 means 'use the database price'."
+  },
+  "Cash shop": {
+    "prefix": "cashshop",
+    "body": ["${1:prontera},${2:150},${3:180},${4:4}\tcashshop\t${5:Shop Name}\t${6:100},${7:501}:${8:100}"],
+    "description": "A shop that charges cash points instead of zeny."
+  },
+  "Monster spawn": {
+    "prefix": "monster",
+    "body": ["${1:prt_fild00},${2:0},${3:0}\tmonster\t${4:Poring}\t${5:1002},${6:10},${7:5000}"],
+    "description": "Permanent monster spawn. Params: mob name, mob id, amount, respawn delay (ms)."
+  },
+  "Boss monster spawn": {
+    "prefix": "bossmonster",
+    "body": ["${1:prt_maze03},${2:0},${3:0}\tboss_monster\t${4:Baphomet}\t${5:1039},${6:1},${7:7200000},${8:600000},${9:0}"],
+    "description": "MVP spawn, shown on the /mi boss radar."
+  },
+  "Mapflag": {
+    "prefix": "mapflag",
+    "body": ["${1:prontera}\tmapflag\t${2|nomemo,noteleport,nosave,nobranch,nopenalty,noreturn,nowarp,nowarpto,noskill,pvp,pvp_noparty,pvp_noguild,gvg,gvg_dungeon,gvg_castle,nightenabled,restricted,loadevent,nomobloot,nomvploot,partylock,guildlock|}"],
+    "description": "Apply a mapflag to a map."
+  },
+  "OnInit label": {
+    "prefix": "oninit",
+    "body": ["OnInit:", "\t$0", "\tend;"],
+    "description": "Runs once when the script is loaded by the map server."
+  },
+  "Event label": {
+    "prefix": "onevent",
+    "body": ["${1|OnTouch,OnTouchNPC,OnPCLoginEvent,OnPCLogoutEvent,OnPCDieEvent,OnPCKillEvent,OnPCLevelUpEvent,OnPCBaseLvUpEvent,OnPCJobLvUpEvent,OnNPCKillEvent,OnAgitStart,OnAgitEnd,OnClock0000,OnMinute00,OnHour00,OnDay0000,OnSun0000,OnTimer1000|}:", "\t$0", "\tend;"],
+    "description": "A server-triggered event label."
+  },
+  "Menu (select)": {
+    "prefix": "select",
+    "body": [
+      "switch (select(\"${1:Option one}:${2:Option two}:${3:Cancel}\")) {",
+      "\tcase 1:",
+      "\t\t$0",
+      "\t\tbreak;",
+      "\tcase 2:",
+      "\t\tbreak;",
+      "\tcase 3:",
+      "\t\tclose;",
+      "}"
+    ],
+    "description": "Dialogue menu using select() inside a switch."
+  },
+  "Dialogue block": {
+    "prefix": "mesblock",
+    "body": ["mes \"[${1:NPC Name}]\";", "mes \"${2:Hello there!}\";", "close;"],
+    "description": "A minimal dialogue: header line, message, close."
+  },
+  "if / else": {
+    "prefix": "ifelse",
+    "body": ["if (${1:condition}) {", "\t$0", "} else {", "\t", "}"],
+    "description": "Conditional block."
+  },
+  "for loop": {
+    "prefix": "for",
+    "body": ["for (.@i = 0; .@i < ${1:10}; .@i++) {", "\t$0", "}"],
+    "description": "Counted loop using a scope-local variable."
+  },
+  "Array iteration": {
+    "prefix": "foreach",
+    "body": [
+      "for (.@i = 0; .@i < getarraysize(${1:.@array}); .@i++) {",
+      "\t$0",
+      "}"
+    ],
+    "description": "Iterate over a script array."
+  },
+  "Item reward check": {
+    "prefix": "checkweight",
+    "body": [
+      "if (!checkweight(${1:501},${2:1})) {",
+      "\tmes \"You are carrying too much to receive this.\";",
+      "\tclose;",
+      "}",
+      "getitem ${1:501},${2:1};"
+    ],
+    "description": "Guard against giving items to an overweight character."
+  },
+  "Quest variable guard": {
+    "prefix": "questguard",
+    "body": [
+      "if (${1:my_quest} == ${2:0}) {",
+      "\tmes \"[${3:NPC Name}]\";",
+      "\tmes \"${4:Would you help me?}\";",
+      "\tnext;",
+      "\tif (select(\"Yes:No\") == 2) {",
+      "\t\tclose;",
+      "\t}",
+      "\t${1:my_quest} = 1;",
+      "\tclose;",
+      "}",
+      "$0"
+    ],
+    "description": "Classic quest gating on a permanent character variable."
+  },
+  "Script header comment": {
+    "prefix": "header",
+    "body": [
+      "//===== rAthena Script =======================================",
+      "//= ${1:Script Name}",
+      "//===== By: ==================================================",
+      "//= ${2:Zindokar}",
+      "//===== Current Version: =====================================",
+      "//= ${3:1.0}",
+      "//===== Description: =========================================",
+      "//= ${4:What this script does.}",
+      "//===== Additional Comments: =================================",
+      "//= ${3:1.0} Initial script.",
+      "//============================================================",
+      "",
+      "$0"
+    ],
+    "description": "The standard rAthena file header block."
+  }
+}
