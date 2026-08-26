@@ -2,7 +2,7 @@
   "name": "rathena-extension",
   "displayName": "rAthenaExtension",
   "description": "Language support for rAthena: NPC scripts, YAML databases and server configuration files.",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "publisher": "Zindokar",
   "license": "MIT",
   "author": {
@@ -117,25 +117,10 @@
           "enumDescriptions": [
             "Run when the file is saved (recommended). Half-typed code produces misleading errors.",
             "Run on every keystroke. Accurate but noisy while editing.",
-            "Never run automatically; use the 'Check With Map-Server Parser' command."
+            "Never run automatically; use the 'Check Syntax' command."
           ],
           "default": "onSave",
           "markdownDescription": "Validate scripts with a faithful port of the map-server's own parser (`parse_script` in `src/map/script.cpp`), reporting the exact error rAthena would print. Catches argument-count mismatches, duplicate `case` labels and undeclared functions that the fast checks cannot."
-        },
-        "rathena.mapServer.binary": {
-          "type": "string",
-          "default": "",
-          "markdownDescription": "Path to the compiled `map-server` binary, absolute or relative to the server folder. Leave empty to look for `map-server` (or `map-server.exe` on Windows) in the server root."
-        },
-        "rathena.mapServer.args": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "--run-once"
-          ],
-          "markdownDescription": "Arguments passed to the map-server. `--run-once` loads everything and exits, which is what makes it usable as a script check."
         },
         "rathena.format.indentStyle": {
           "type": "string",
@@ -173,11 +158,7 @@
       },
       {
         "command": "rathena.strictCheck",
-        "title": "rAthena: Check With Map-Server Parser"
-      },
-      {
-        "command": "rathena.runMapServerCheck",
-        "title": "rAthena: Run Real Map-Server Script Check"
+        "title": "rAthena: Check Syntax (map-server parser)"
       },
       {
         "command": "rathena.insert.item",
@@ -205,12 +186,6 @@
         "command": "rathena.strictCheck",
         "key": "ctrl+alt+c",
         "mac": "cmd+alt+c",
-        "when": "editorLangId == rathena-script"
-      },
-      {
-        "command": "rathena.runMapServerCheck",
-        "key": "ctrl+alt+m",
-        "mac": "cmd+alt+m",
         "when": "editorLangId == rathena-script"
       },
       {

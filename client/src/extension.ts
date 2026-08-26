@@ -9,11 +9,9 @@ import {
 } from 'vscode-languageclient/node';
 
 import { browseAndInsert, clearBrowseCache, type BrowseKind } from './browsers.js';
-import { findBinary, runMapServer } from './mapServerRunner.js';
 
 let client: LanguageClient | undefined;
-let mapServerOutput: vscode.OutputChannel | undefined;
-let mapServerDiagnostics: vscode.DiagnosticCollection | undefined;
+let checkOutput: vscode.OutputChannel | undefined;
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const serverModule = context.asAbsolutePath(path.join('dist', 'server.js'));
@@ -66,8 +64,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         detected ? `rAthena server detected at: ${detected}` : 'No rAthena server folder detected.'
       );
     }),
-    vscode.commands.registerCommand('rathena.strictCheck', () => strictCheckCommand()),
-    vscode.commands.registerCommand('rathena.runMapServerCheck', () => runMapServerCommand())
+    vscode.commands.registerCommand('rathena.strictCheck', () => strictCheckCommand())
   );
 
   await client.start();
@@ -97,7 +94,7 @@ async function strictCheckCommand(): Promise<void> {
   });
 
   if (!result || result.errors === 0) {
-    void vscode.window.showInformationMessage('The map-server would load this file without complaint.');
+    void vscode.window.showInformationMessage('No syntax errors — the map-server would parse this file.');
     return;
   }
 
@@ -127,87 +124,13 @@ async function strictCheckCommand(): Promise<void> {
   }
 }
 
-/**
- * Runs the real binary. Slower and needs a built server plus a database, but it
- * is the only thing that can catch load-time problems a parser cannot see.
- */
-async function runMapServerCommand(): Promise<void> {
-  const config = vscode.workspace.getConfiguration('rathena');
-  const detected = await client?.sendRequest<string | null>('rathena/serverPath');
-  const serverRoot = detected ?? config.get<string>('serverPath', '');
-
-  if (!serverRoot) {
-    void vscode.window.showErrorMessage(
-      'No rAthena server folder found. Set "rathena.serverPath" first.'
-    );
-    return;
-  }
-
-  const binary = findBinary(serverRoot, config.get<string>('mapServer.binary', ''));
-  if (!binary) {
-    const choice = await vscode.window.showErrorMessage(
-      'No map-server binary found. Build it with `./configure && make sql` in your rAthena folder, or set "rathena.mapServer.binary".',
-      'Open settings'
-    );
-    if (choice === 'Open settings') {
-      void vscode.commands.executeCommand('workbench.action.openSettings', 'rathena.mapServer');
-    }
-    return;
-  }
-
-  const args = config.get<string[]>('mapServer.args', ['--run-once']);
-  const channel = getOutputChannel();
-  channel.clear();
-  channel.show(true);
-
-  const collection = getDiagnosticCollection();
-  collection.clear();
-
-  const result = await vscode.window.withProgress(
-    {
-      location: vscode.ProgressLocation.Notification,
-      title: 'Loading scripts with the real map-server…',
-      cancellable: true
-    },
-    (_progress, token) => runMapServer({ serverRoot, binary, args, output: channel, token })
-  );
-
-  for (const [file, diagnostics] of result.diagnostics) {
-    collection.set(vscode.Uri.file(file), diagnostics);
-  }
-
-  if (result.errorCount === 0) {
-    void vscode.window.showInformationMessage(
-      `The map-server loaded every script${result.warningCount > 0 ? `, with ${result.warningCount} warning(s)` : ' cleanly'}.`
-    );
-    return;
-  }
-
-  const choice = await vscode.window.showErrorMessage(
-    `The map-server reported ${result.errorCount} error(s) and ${result.warningCount} warning(s).`,
-    'Show output',
-    'Show problems'
-  );
-  if (choice === 'Show output') {
-    channel.show(true);
-  } else if (choice === 'Show problems') {
-    void vscode.commands.executeCommand('workbench.actions.view.problems');
-  }
-}
-
 function getOutputChannel(): vscode.OutputChannel {
-  mapServerOutput ??= vscode.window.createOutputChannel('rAthena Script Check');
-  return mapServerOutput;
-}
-
-function getDiagnosticCollection(): vscode.DiagnosticCollection {
-  mapServerDiagnostics ??= vscode.languages.createDiagnosticCollection('rathena-map-server');
-  return mapServerDiagnostics;
+  checkOutput ??= vscode.window.createOutputChannel('rAthena Script Check');
+  return checkOutput;
 }
 
 export async function deactivate(): Promise<void> {
   await client?.stop();
   client = undefined;
-  mapServerOutput?.dispose();
-  mapServerDiagnostics?.dispose();
+  checkOutput?.dispose();
 }

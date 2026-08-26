@@ -46,7 +46,7 @@ El principio rector, en orden de prioridad:
 
 - **`server.ts` y el cliente no tienen tests automatizados.** Probarlos requiere `@vscode/test-electron`, que arranca un VSCode entero por test. El coste no compensa mientras la lógica de negocio esté toda en módulos puros (que es el caso: `server.ts` solo cablea). Si crecen los bugs de cableado, reconsiderar.
 - **La grammar TextMate solo se prueba a ojo.** Existe tooling (`vscode-tmgrammar-test`) pero la grammar cambia poco; queda anotado como mejora.
-- **El runner del map-server real** se prueba manualmente y solo si tienes el binario compilado. Es opcional por diseño.
+- **No hay tier de "ejecutar el servidor real".** Se retiró a propósito: el objetivo es comprobar la sintaxis del fichero en edición, y para eso el port del parser basta. Los problemas que solo aparecen al cargar el servidor entero (nombres de NPC duplicados entre ficheros, warps a mapas ausentes del map cache) quedan fuera de alcance por diseño.
 
 ---
 

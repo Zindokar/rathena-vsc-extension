@@ -92,7 +92,7 @@ Estos **no** producen nada al teclear. Guarda el fichero (<kbd>Cmd</kbd>+<kbd>S<
 
 Pasa el ratón por el subrayado para ver el informe completo en el formato de rAthena, con cinco líneas de contexto a cada lado y el carácter culpable entre comillas.
 
-> Los atajos: <kbd>Cmd</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> es el parser interno (instantáneo). <kbd>Cmd</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd> lanza el map-server de verdad, que tarda segundos y necesita el servidor compilado y MySQL, pero además detecta cosas de carga que ningún parser ve.
+> <kbd>Cmd</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> es **rAthena: Check Syntax**. Analiza solo el fichero abierto, tarda milisegundos y no necesita nada instalado.
 
 ### B1 — Faltan argumentos
 

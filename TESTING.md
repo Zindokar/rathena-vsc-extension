@@ -1,4 +1,4 @@
-# Plan de pruebas — rAthenaExtension v0.3.0
+# Plan de pruebas manual — rAthenaExtension v0.4.0
 
 Cobertura completa de todo lo implementado. El análisis es **siempre de un solo fichero**: ni el parser rápido ni el del map-server miran otros archivos, así que puedes probar cada bloque de forma aislada.
 
@@ -8,7 +8,7 @@ Cobertura completa de todo lo implementado. El análisis es **siempre de un solo
 cd ~/rathena_ext
 npm install
 npm run package:full
-"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" --install-extension rathena-extension-0.3.0.vsix
+"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" --install-extension rathena-extension-0.4.0.vsix
 ```
 
 O abre `rathena-extension.code-workspace` y pulsa <kbd>F5</kbd>.
