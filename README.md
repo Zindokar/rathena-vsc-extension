@@ -43,7 +43,7 @@ The first invocation of each loads its list; after that it is instant. **rAthena
 |---|---|---|---|
 | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> | <kbd>Cmd</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> | rAthena: Check Syntax (map-server parser) | Parses the open file exactly as the map-server would |
 
-It runs in milliseconds, reads only the file you have open, and its notification carries the file and line with a **Go to error** button.
+It runs in milliseconds and reads only the file you have open, so nothing has to be compiled and no database has to be running. Its notification carries the file and line with a **Go to error** button, and the diagnostic itself holds the full report in rAthena's own format.
 
 ### Built-in VS Code keys worth knowing
 
@@ -134,56 +134,6 @@ Rather than hand-maintaining a table of several hundred commands, the meaning is
 
 Mapping that vocabulary once covers every documented command. The two `getitem` forms are also what let the extension offer numeric IDs outside a string and AegisNames inside one — the choice is documented, not guessed.
 
-## Two checkers, on purpose
-
-The extension runs two independent analyses of **the file you have open**, and they answer different questions.
-
-**The fast checks** (`quickCheck`) are heuristics over the token stream. They are error-tolerant, run on every keystroke, and deliberately stay quiet when unsure. They answer *"does this look wrong?"*
-
-**The map-server parser** (`mapServerParser`) is a port of `parse_script` from `src/map/script.cpp`, statement for statement, with the same error messages and positions. It answers *"will the server parse this?"*
-
-The port is viable because of three properties of the original:
-
-1. **It has no runtime dependencies.** The parser never touches `item_db`, `mob_db` or the map cache. Its only external input is the symbol table, which we already build from `BUILDIN_DEF` and `export_constant`.
-2. **It is small** — roughly 1,755 lines, much of which is bytecode emission that a validator does not need.
-3. **All 45 of its error messages are purely syntactic.**
-
-One faithful behaviour is worth knowing about: `disp_error_message` ends in `longjmp`, so the real parser reports one error and abandons the script. We keep that per NPC block — reporting a second error inside a block would mean inventing recovery the server does not have. Since the server parses each NPC separately, a file with three broken NPCs still produces three errors.
-
-Because it is a full parse, it runs on save rather than on every keystroke. `rathena.strictParser` accepts `onSave` (default), `onType` or `off`.
-
-Its diagnostics carry the complete error block in the map-server's own format — a port of `script_errorwarning_sub`, down to the `printf("% 5d")` column alignment and the single quotes around the offending character:
-
-```
-script error on npc/custom/test.txt line 15
-    parse_line: expected ';'
-    12 : prontera,150,180,4	script	Roto Uno	100,{
-    13 :
-    14 : 	mes "[^0055FFZindokar^000000]"
-*   15 : 	'm'es "Esta linea si esta bien.";
-    16 : 	next;
-```
-
-### Scope: the open file, and only the open file
-
-Both analyses read the buffer you are editing and nothing else. No compiled server, no database, no other script.
-
-The one input from outside is the symbol table — commands, constants and the names of global `function script` objects — built once when the extension indexes your server. Without the function names, every cross-file call such as `F_Navi("...")` would be reported as undeclared. That is a lookup table, not analysis of other files: the parse itself never leaves the buffer.
-
-The trade-off is deliberate. Problems that only appear when the whole server loads — duplicate NPC names across files, a warp pointing at a map missing from the map cache — are out of scope by design. Catching those means running the actual server, and the cost of that (a compiled binary, a live database, seconds per run) is not worth paying for a syntax check you want to fire on every save.
-
-### When the two disagree
-
-`npc/quests/quests_moscovia.txt:9923` has an extra closing parenthesis. The fast checks flag it; the map-server parser does not — and the map-server parser is right about what the server does. In `parse_line`, a successful variable assignment returns via:
-
-```c
-return parse_syntax_close(p2 + 1);
-```
-
-That `+ 1` consumes one character without checking that it is a `;`. The stray `)` lands in that slot and is silently swallowed. rAthena loads the file.
-
-So both are correct: it is a typo worth fixing, and the server does not care. That disagreement is the reason to keep both analyses rather than replacing one with the other.
-
 ## Settings
 
 | Setting | Default | What it does |
@@ -195,61 +145,3 @@ So both are correct: it is a typo worth fixing, and the server does not care. Th
 | `rathena.diagnostics.unknownIds` | `true` | The unknown-command warning |
 | `rathena.trace.server` | `off` | LSP traffic logging |
 | `rathena.format.indentStyle` | `tab` | Reserved. The formatter is not implemented yet, so this currently does nothing |
-
-## Development
-
-```bash
-npm run watch        # rebuild client and server on change
-npm run check        # tsc --noEmit
-npm run lint         # eslint
-npm run test         # unit tests (184)
-npm run verify       # run the analysers over every official rAthena script
-npm run gen:data     # regenerate the bundled fallback dataset
-npm run package:full # generate data, then build a .vsix
-```
-
-The client and the server are bundled separately by esbuild into `dist/client.js` and `dist/server.js`, with `vscode` as the only external. Everything the server needs at runtime is inlined, which is why `node_modules` is excluded from the `.vsix`.
-
-### Testing
-
-| Document | What it is |
-|---|---|
-| [TEST-PLAN.md](TEST-PLAN.md) | The strategy: coverage matrix per module, acceptance criteria, procedures, known gaps |
-| [TESTING.md](TESTING.md) | The manual checklist, section by section |
-| [test-fixtures/COPY-PASTE.md](test-fixtures/COPY-PASTE.md) | Twenty paste-ready snippets with their verified expected output |
-
-`test-fixtures/npc/` holds three files used throughout: `smoke-test.txt` (must produce zero diagnostics), `errors-test.txt` (six isolated faults) and `broken-test.txt` (thirteen faults deliberately mixed with correct code, so it tests both directions at once).
-
-### The corpus check
-
-`npm run verify` runs the lexer and every diagnostic over rAthena's own `npc/` tree — about 26 MB across 1,139 files, five million tokens, roughly 3 seconds. The bar is zero diagnostics.
-
-At rAthena `0c3ca757a` it reports three, and all three are genuine defects upstream rather than analyser bugs:
-
-```
-npc/quests/quests_moscovia.txt:9923 — Expected '}' to close '{' opened on line 9920, found ')'
-npc/quests/quests_moscovia.txt:9993 — Unmatched '}'          (cascade from the above)
-npc/pre-re/jobs/novice/novice.txt:2741 — Missing ';'
-```
-
-Line 9923 has five opening and six closing parentheses; the otherwise identical line 9924 has five of each. And `novice.txt:2741` is a bare `return` with no semicolon sitting directly above an `end;`.
-
-That corpus is what keeps the checks honest. Missing-semicolon detection in particular is easy to write and hard to write *well* — the difficulty is not finding the omissions but staying silent on the many places a semicolon legitimately does not belong: labels, `case` arms, control-flow headers, and expressions wrapped across lines. Every rule in `checkMissingSemicolons` earned its place by removing a false positive from this corpus.
-
-The threshold is baked into the `--max 3` flag and the script exits non-zero when it is exceeded, ready for CI. If a change makes the count go up, the fix is the analyser — never the threshold.
-
-## Contributing
-
-Bug reports and pull requests are welcome at [rathena-vsc-extension](https://github.com/Zindokar/rathena-vsc-extension).
-
-Before opening a PR:
-
-```bash
-npm run check && npm run lint && npm test && npm run verify
-```
-
-Every bug fixed so far left a regression test behind, and [TEST-PLAN.md](TEST-PLAN.md) keeps a table linking each one to the test that would have caught it. New diagnostics need both the positive cases and the exemptions — the places they must stay quiet — plus a clean corpus run.
-
-## Licence
-
-MIT
