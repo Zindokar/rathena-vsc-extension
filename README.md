@@ -80,11 +80,11 @@ Not all of these have a shortcut. <kbd>Ctrl/Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</k
 ## Getting started
 
 ```bash
-git clone https://github.com/Zindokar/rathena-extension.git
-cd rathena-extension
+git clone https://github.com/Zindokar/rathena-vsc-extension.git
+cd rathena-vsc-extension
 npm install
 npm run package:full
-code --install-extension rathena-extension-0.3.0.vsix
+code --install-extension rathena-extension-0.3.1.vsix
 ```
 
 For development instead, open `rathena-extension.code-workspace` — which loads this project alongside your rAthena checkout — and press <kbd>F5</kbd>.

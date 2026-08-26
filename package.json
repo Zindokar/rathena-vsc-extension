@@ -10,10 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Zindokar/rathena-extension.git"
+    "url": "https://github.com/Zindokar/rathena-vsc-extension.git"
   },
   "bugs": {
-    "url": "https://github.com/Zindokar/rathena-extension/issues"
+    "url": "https://github.com/Zindokar/rathena-vsc-extension/issues"
   },
   "engines": {
     "vscode": "^1.90.0"
