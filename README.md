@@ -2,7 +2,7 @@
 
 Language support for [rAthena](https://github.com/rathena/rathena) inside Visual Studio Code: NPC scripts, YAML databases and server configuration files.
 
-> Status: **v0.3.0.** Highlighting, snippets, context-aware completion, hover, outline, two independent diagnostic engines and searchable database pickers. Go-to-definition, rename and formatting are next — see [PLAN.md](PLAN.md).
+> Status: **v0.3.1.** Highlighting, snippets, context-aware completion, hover, outline, two independent diagnostic engines and searchable database pickers. 184 unit tests and a regression corpus over every official rAthena script. Go-to-definition, rename and formatting are next — see [PLAN.md](PLAN.md).
 
 ## Features
 
@@ -205,13 +205,24 @@ So both are correct: it is a typo worth fixing, and the server does not care. Th
 ```bash
 npm run watch        # rebuild client and server on change
 npm run check        # tsc --noEmit
-npm run test         # unit tests (151)
+npm run lint         # eslint
+npm run test         # unit tests (184)
 npm run verify       # run the analysers over every official rAthena script
 npm run gen:data     # regenerate the bundled fallback dataset
 npm run package:full # generate data, then build a .vsix
 ```
 
-Manual test material lives in [TESTING.md](TESTING.md) and `test-fixtures/`, including [COPY-PASTE.md](test-fixtures/COPY-PASTE.md) — twenty snippets with their verified expected output.
+The client and the server are bundled separately by esbuild into `dist/client.js` and `dist/server.js`, with `vscode` as the only external. Everything the server needs at runtime is inlined, which is why `node_modules` is excluded from the `.vsix`.
+
+### Testing
+
+| Document | What it is |
+|---|---|
+| [TEST-PLAN.md](TEST-PLAN.md) | The strategy: coverage matrix per module, acceptance criteria, procedures, known gaps |
+| [TESTING.md](TESTING.md) | The manual checklist, section by section |
+| [test-fixtures/COPY-PASTE.md](test-fixtures/COPY-PASTE.md) | Twenty paste-ready snippets with their verified expected output |
+
+`test-fixtures/npc/` holds three files used throughout: `smoke-test.txt` (must produce zero diagnostics), `errors-test.txt` (six isolated faults) and `broken-test.txt` (thirteen faults deliberately mixed with correct code, so it tests both directions at once).
 
 ### The corpus check
 
@@ -228,6 +239,20 @@ npc/pre-re/jobs/novice/novice.txt:2741 — Missing ';'
 Line 9923 has five opening and six closing parentheses; the otherwise identical line 9924 has five of each. And `novice.txt:2741` is a bare `return` with no semicolon sitting directly above an `end;`.
 
 That corpus is what keeps the checks honest. Missing-semicolon detection in particular is easy to write and hard to write *well* — the difficulty is not finding the omissions but staying silent on the many places a semicolon legitimately does not belong: labels, `case` arms, control-flow headers, and expressions wrapped across lines. Every rule in `checkMissingSemicolons` earned its place by removing a false positive from this corpus.
+
+The threshold is baked into the `--max 3` flag and the script exits non-zero when it is exceeded, ready for CI. If a change makes the count go up, the fix is the analyser — never the threshold.
+
+## Contributing
+
+Bug reports and pull requests are welcome at [rathena-vsc-extension](https://github.com/Zindokar/rathena-vsc-extension).
+
+Before opening a PR:
+
+```bash
+npm run check && npm run lint && npm test && npm run verify
+```
+
+Every bug fixed so far left a regression test behind, and [TEST-PLAN.md](TEST-PLAN.md) keeps a table linking each one to the test that would have caught it. New diagnostics need both the positive cases and the exemptions — the places they must stay quiet — plus a clean corpus run.
 
 ## Licence
 
